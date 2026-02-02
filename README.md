@@ -31,7 +31,15 @@ chmod +x info.sh
 ## 6. 대시보드 확인 및 알람설정
 - Dashboards > Node Exporter / Nodes
 - Alert rules
+``` query
+(
+  (1 - sum without (mode) (rate(node_cpu_seconds_total{job="node-exporter", mode=~"idle|iowait|steal", instance="10.50.1.57:9100"}[$__rate_interval])))
+/ ignoring(cpu) group_left
+  count without (cpu, mode) (node_cpu_seconds_total{job="node-exporter", mode="idle", instance="10.50.1.57:9100"})
+)
+```
 - 부하 추가 ) `yes > /dev/null`
+
 
 ## 5. 클러스터 삭제
 eksctl delete cluster -f eksctl.yaml
