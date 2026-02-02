@@ -7,22 +7,13 @@
 - CloudFormation > 스택 > 스택 생성 > 템플릿 파일 업로드 > eks-cloudformation-stack-test > 
 
 
-## 1. EKSCTL 설치 
-
-curl -sL https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz \
-| tar xz -C /tmp && sudo mv /tmp/eksctl /usr/local/bin
-
-
-
 ## 2. Git Clone
 git clone https://github.com/jhbaik1501/eks-monitoring-guide.git
 
 
 ## 3. 클러스터 생성
-eksctl create cluster -f eksctl-test-account.yaml
-
-
+eksctl create cluster -f eksctl.yaml
 
 
 ## 5. 클러스터 삭제
-eksctl delete cluster -f eksctl-test-account.yaml
+eksctl delete cluster -f eksctl.yaml
