@@ -36,7 +36,7 @@ chmod +x info.sh
   (1 - sum without (mode) (rate(node_cpu_seconds_total{job="node-exporter", mode=~"idle|iowait|steal", instance="10.50.1.57:9100"}[$__rate_interval])))
 / ignoring(cpu) group_left
   count without (cpu, mode) (node_cpu_seconds_total{job="node-exporter", mode="idle", instance="10.50.1.57:9100"})
-)
+) * 100
 ```
 - 부하 추가 ) `yes > /dev/null`
 
