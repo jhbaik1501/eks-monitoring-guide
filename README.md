@@ -25,6 +25,7 @@ eksctl create cluster -f eksctl.yaml
   --namespace monitoring
 
 ## 5. Endpoint 확인
+chmod +x info.sh
 ./info.sh
 
 ## 5. 클러스터 삭제
