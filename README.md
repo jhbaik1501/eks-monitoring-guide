@@ -24,6 +24,8 @@ eksctl create cluster -f eksctl.yaml
   -f prometheus-values.yaml \
   --namespace monitoring
 
+## 5. Endpoint 확인
+./info.sh
 
 ## 5. 클러스터 삭제
 eksctl delete cluster -f eksctl.yaml
