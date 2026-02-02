@@ -17,3 +17,6 @@ eksctl create cluster -f eksctl.yaml
 
 ## 5. 클러스터 삭제
 eksctl delete cluster -f eksctl.yaml
+
+## 6. CloudFormation 스택 삭제
+CloudFormation 삭제
