@@ -1,18 +1,21 @@
 prometheus:
+  # prometheusSpec 내부가 아니라, prometheus 바로 아래에 service가 와야 합니다.
+  service:
+    type: NodePort
+    nodePort: 30001
+
   prometheusSpec:
-    service:
-      type: NodePort
-      nodePort: 30001 # 프로메테우스 접속 포트 (선택 사항)
+    # 프로메테우스 인스턴스 자체에 대한 설정(이미지, 리소스 등)은 여기에 들어갑니다.
+    nodeExporter:
+      enabled: true
 
 grafana:
   service:
     type: NodePort
-    nodePort: 30002 # 그라파나 접속 포트 (선택 사항)
+    nodePort: 30002
 
-# Node Exporter는 기본적으로 DaemonSet으로 활성화됨
 nodeExporter:
   enabled: true
 
-# Alertmanager는 필요 없으면 꺼둘 수 있음
 alertmanager:
   enabled: false
