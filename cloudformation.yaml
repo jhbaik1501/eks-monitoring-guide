@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: VPC(10.50.0.0/16) with Helm, eksctl, and kubectl on t3.micro Bastion
+Description: VPC(10.50.0.0/16) with Auto-AMI, IAM Role, Helm, eksctl, and kubectl
 
 Parameters:
   KeyName:
@@ -7,7 +7,7 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
 
 Resources:
-  # 1. VPC 생성 (10.50 대역으로 변경)
+  # 1. VPC & Network (10.50 대역)
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -18,7 +18,6 @@ Resources:
         - Key: Name
           Value: eks-mgmt-vpc-10-50
 
-  # 2. 인터넷 게이트웨이
   InternetGateway:
     Type: AWS::EC2::InternetGateway
   
@@ -28,7 +27,6 @@ Resources:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
 
-  # 3. 퍼블릭 서브넷 (10.50.1.0/24)
   PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
@@ -40,7 +38,6 @@ Resources:
         - Key: Name
           Value: eks-mgmt-public-subnet
 
-  # 4. 라우팅 테이블 설정
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -60,7 +57,27 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet
 
-  # 5. 보안 그룹
+  # 2. IAM Role (Bastion에서 eksctl을 바로 쓸 수 있게 권한 부여)
+  BastionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess # EKS 생성을 위해 필요
+
+  BastionInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref BastionRole
+
+  # 3. Security Group
   BastionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -72,47 +89,44 @@ Resources:
           ToPort: 22
           CidrIp: 0.0.0.0/0
 
-  # 6. Bastion EC2 (t3.micro & Helm 추가 설치)
+  # 4. Bastion EC2 (SSM 파라미터로 최신 AMI 자동 선택)
   BastionInstance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
-      ImageId: ami-0c2d3e031e7c16417 # Amazon Linux 2023
+      # Amazon Linux 2023 최신 AMI를 자동으로 조회합니다.
+      ImageId: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
       KeyName: !Ref KeyName
       SubnetId: !Ref PublicSubnet
       SecurityGroupIds:
         - !Ref BastionSecurityGroup
+      IamInstanceProfile: !Ref BastionInstanceProfile
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
           yum update -y
           yum install -y unzip tar git
-
-          # 1. AWS CLI v2 설치
+          # AWS CLI v2
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           ./aws/install
-
-          # 2. eksctl 설치
+          # eksctl
           ARCH=amd64
           PLATFORM=$(uname -s)_$ARCH
           curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
           tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
           mv /tmp/eksctl /usr/local/bin
-
-          # 3. kubectl 설치 (v1.31)
+          # kubectl
           curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.31.0/2024-09-12/bin/linux/amd64/kubectl
           chmod +x ./kubectl
           mv ./kubectl /usr/local/bin
-
-          # 4. Helm 설치 (최신 버전)
+          # Helm
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
-
       Tags:
         - Key: Name
-          Value: eksctl-bastion-micro
+          Value: eksctl-bastion-final
 
 Outputs:
   VpcId:
