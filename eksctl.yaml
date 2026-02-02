@@ -7,13 +7,16 @@ metadata:
   version: "1.34"
 
 vpc:
-  id: "<VpcId>"
+  id: "<VpcId>" # CloudFormation Outputs의 VpcId 입력
   cidr: "10.50.0.0/16"
   subnets:
     public:
       eks-monitoring-test-prod-subnet-public1-ap-northeast-2a:
-        id: "<PublicSubnetId>"
+        id: "<PublicSubnetAId>" # CloudFormation Outputs의 PublicSubnetAId 입력
         cidr: "10.50.1.0/24"
+      eks-monitoring-test-prod-subnet-public2-ap-northeast-2c:
+        id: "<PublicSubnetCId>" # CloudFormation Outputs의 PublicSubnetCId 입력
+        cidr: "10.50.2.0/24"
 
 managedNodeGroups:
   - name: eks-monitoring-test-nodegroup
@@ -23,8 +26,11 @@ managedNodeGroups:
     volumeEncrypted: true
     ssh:
       publicKeyName: eks-monitoring-test-key
+    # 노드그룹을 두 서브넷 모두에 배치하여 고가용성 확보
     subnets:
-      - <PublicSubnetId>
+      - "<PublicSubnetAId>"
+      - "<PublicSubnetCId>"
+    # NodePort 접근을 위해 퍼블릭 IP 할당 유지
     privateNetworking: false
     tags:
       LongTermUse: "Y"
