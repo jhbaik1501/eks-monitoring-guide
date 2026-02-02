@@ -26,8 +26,8 @@ eksctl create cluster -f eksctl.yaml
   --namespace monitoring
 
 ## 5. Endpoint 확인
-chmod +x info.sh
-./info.sh
+- chmod +x info.sh
+- ./info.sh
 
 ## 6. 대시보드 확인 및 알람설정
 - Dashboards > Node Exporter / Nodes
