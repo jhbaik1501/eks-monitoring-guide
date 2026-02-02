@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: VPC(10.50.0.0/16) with Helm, eksctl, and kubectl on t3.micro Bastion
+Description: VPC(10.50.0.0/16) with Helm, eksctl, and kubectl on t3.micro Bastion (with DeletionPolicy)
 
 Parameters:
   KeyName:
@@ -7,9 +7,10 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
 
 Resources:
-  # 1. VPC 생성 (10.50 대역으로 변경)
+  # 1. VPC
   VPC:
     Type: AWS::EC2::VPC
+    DeletionPolicy: Retain
     Properties:
       CidrBlock: 10.50.0.0/16
       EnableDnsSupport: true
@@ -21,16 +22,19 @@ Resources:
   # 2. 인터넷 게이트웨이
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+    DeletionPolicy: Retain
   
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
+    DeletionPolicy: Retain
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
 
-  # 3. 퍼블릭 서브넷 (10.50.1.0/24)
+  # 3. 퍼블릭 서브넷
   PublicSubnet:
     Type: AWS::EC2::Subnet
+    DeletionPolicy: Retain
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: ap-northeast-2a
@@ -40,14 +44,16 @@ Resources:
         - Key: Name
           Value: eks-mgmt-public-subnet
 
-  # 4. 라우팅 테이블 설정
+  # 4. 라우팅 테이블
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
+    DeletionPolicy: Retain
     Properties:
       VpcId: !Ref VPC
 
   DefaultRoute:
     Type: AWS::EC2::Route
+    DeletionPolicy: Retain
     DependsOn: VPCGatewayAttachment
     Properties:
       RouteTableId: !Ref PublicRouteTable
@@ -56,6 +62,7 @@ Resources:
 
   SubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    DeletionPolicy: Retain
     Properties:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet
@@ -63,6 +70,7 @@ Resources:
   # 5. 보안 그룹
   BastionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Retain
     Properties:
       GroupDescription: Enable SSH access
       VpcId: !Ref VPC
@@ -72,9 +80,10 @@ Resources:
           ToPort: 22
           CidrIp: 0.0.0.0/0
 
-  # 6. Bastion EC2 (t3.micro & Helm 추가 설치)
+  # 6. Bastion EC2 (t3.micro)
   BastionInstance:
     Type: AWS::EC2::Instance
+    DeletionPolicy: Retain
     Properties:
       InstanceType: t3.micro
       ImageId: ami-0c2d3e031e7c16417 # Amazon Linux 2023
@@ -87,29 +96,24 @@ Resources:
           #!/bin/bash
           yum update -y
           yum install -y unzip tar git
-
-          # 1. AWS CLI v2 설치
+          # AWS CLI v2
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           ./aws/install
-
-          # 2. eksctl 설치
+          # eksctl
           ARCH=amd64
           PLATFORM=$(uname -s)_$ARCH
           curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
           tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
           mv /tmp/eksctl /usr/local/bin
-
-          # 3. kubectl 설치 (v1.31)
+          # kubectl
           curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.31.0/2024-09-12/bin/linux/amd64/kubectl
           chmod +x ./kubectl
           mv ./kubectl /usr/local/bin
-
-          # 4. Helm 설치 (최신 버전)
+          # Helm
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
-
       Tags:
         - Key: Name
           Value: eksctl-bastion-micro
