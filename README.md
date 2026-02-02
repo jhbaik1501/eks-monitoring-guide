@@ -8,8 +8,9 @@
 
 
 ## 3. eksctl-bastion-fixed 접속
-cd eks-monitoring-guide/
-
+- cd eks-monitoring-guide/
+- vi eksctl.yaml
+  - \<PublicSubnetAId\>, \<PublicSubnetCId\>, \<VpcId\> 정보 변경
 
 ## 3. 클러스터 생성
 eksctl create cluster -f eksctl.yaml
