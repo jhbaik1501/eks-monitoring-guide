@@ -4,10 +4,10 @@
 
 ## 2. cf 실행 (bastion 서버 생성) 
 - https://github.com/jhbaik1501/eks-monitoring-guide/blob/main/cloudformation.yaml  다운로드
-- CloudFormation > 스택 > 스택 생성 > 템플릿 파일 업로드 > eks-cloudformation-stack-test > 
+- CloudFormation > 스택 > 스택 생성 > 템플릿 파일 업로드 > eks-cloudformation-stack-test 실행
 
 
-## 2. Git Clone
+## 3. eksctl-bastion-fixed 접속
 git clone https://github.com/jhbaik1501/eks-monitoring-guide.git
 
 
