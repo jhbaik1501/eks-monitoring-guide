@@ -1,0 +1,18 @@
+prometheus:
+  prometheusSpec:
+    service:
+      type: NodePort
+      nodePort: 30001 # 프로메테우스 접속 포트 (선택 사항)
+
+grafana:
+  service:
+    type: NodePort
+    nodePort: 30002 # 그라파나 접속 포트 (선택 사항)
+
+# Node Exporter는 기본적으로 DaemonSet으로 활성화됨
+nodeExporter:
+  enabled: true
+
+# Alertmanager는 필요 없으면 꺼둘 수 있음
+alertmanager:
+  enabled: false
