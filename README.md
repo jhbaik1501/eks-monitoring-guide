@@ -41,8 +41,8 @@ chmod +x info.sh
 - 부하 추가 ) `yes > /dev/null`
 
 
-## 5. 클러스터 삭제
+## 7. 클러스터 삭제
 eksctl delete cluster -f eksctl.yaml
 
-## 6. CloudFormation 스택 삭제
+## 8. CloudFormation 스택 삭제
 CloudFormation 삭제
