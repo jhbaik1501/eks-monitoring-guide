@@ -28,6 +28,11 @@ eksctl create cluster -f eksctl.yaml
 chmod +x info.sh
 ./info.sh
 
+## 6. 대시보드 확인 및 알람설정
+- Dashboards > Node Exporter / Nodes
+- Alert rules
+- 부하 추가 ) `yes > /dev/null`
+
 ## 5. 클러스터 삭제
 eksctl delete cluster -f eksctl.yaml
 
