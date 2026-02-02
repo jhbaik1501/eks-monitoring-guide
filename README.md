@@ -20,8 +20,8 @@ eksctl create cluster -f eksctl.yaml
 
 - kubectl create namespace monitoring
 
-- helm install prometheus-stack prometheus-community/kube-prometheus-stack \
-  -f prometheus-values.yaml \
+- helm install prometheus-stack prometheus-community/kube-prometheus-stack \\
+  -f prometheus-values.yaml \\
   --namespace monitoring
 
 ## 5. Endpoint 확인
