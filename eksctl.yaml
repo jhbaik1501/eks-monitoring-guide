@@ -1,29 +1,20 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
- 
+
 metadata:
   name: eks-monitoring-test-prod-cluster
   region: ap-northeast-2
   version: "1.34"
- 
+
 vpc:
-  id: "vpc-0xxxxxxxxxxx"
-  cidr: "10.100.156.0/23"
+  id: "<VpcId>"
+  cidr: "10.50.0.0/16"
   subnets:
     public:
       eks-monitoring-test-prod-subnet-public1-ap-northeast-2a:
-        id: "subnet-0xxxxxxxxxxxxxxx1"
-        cidr: "10.100.156.0/27"
-      eks-monitoring-test-prod-subnet-public2-ap-northeast-2c:
-        id: "subnet-0xxxxxxxxxxxxxxx2"
-        cidr: "10.100.156.32/27"
-    private:
-      eks-monitoring-test-prod-subnet-private1-ap-northeast-2a:
-        id: "subnet-0xxxxxxxxxxxxxxx3"
-        cidr: "10.100.156.64/26"
-      eks-monitoring-test-prod-subnet-private2-ap-northeast-2c:
-        id: "subnet-0xxxxxxxxxxxxxxx4"
-        cidr: "10.100.156.128/26"
+        id: "<PublicSubnetId>"
+        cidr: "10.50.1.0/24"
+
 managedNodeGroups:
   - name: eks-monitoring-test-nodegroup
     instanceType: t3a.medium
@@ -33,9 +24,12 @@ managedNodeGroups:
     ssh:
       publicKeyName: eks-monitoring-test-key
     subnets:
-      - subnet-0xxxxxxxxxxxxxxx3
-      - subnet-0xxxxxxxxxxxxxxx4
-    privateNetworking: true
+      - <PublicSubnetId>
+    privateNetworking: false
+    tags:
+      LongTermUse: "Y"
+      UserEmail: "jonghyun.baik@cj.net"
+      Name: "eks-monitoring-test-nodegroup"
     iam:
       withAddonPolicies:
         autoScaler: true
@@ -44,5 +38,6 @@ managedNodeGroups:
         ebs: true
         efs: true
         albIngress: true
+
 cloudWatch:
   clusterLogging: {}
