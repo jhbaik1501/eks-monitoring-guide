@@ -15,11 +15,12 @@ git clone https://github.com/jhbaik1501/eks-monitoring-guide.git
 eksctl create cluster -f eksctl.yaml
 
 ## 4. Helm 레포지토리 추가 및 업데이트
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
+- helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+- helm repo update
 
-kubectl create namespace monitoring
-helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+- kubectl create namespace monitoring
+
+- helm install prometheus-stack prometheus-community/kube-prometheus-stack \
   -f prometheus-values.yaml \
   --namespace monitoring
 
