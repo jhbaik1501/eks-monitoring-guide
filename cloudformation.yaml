@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: VPC(10.50.0.0/16) with Auto-AMI, IAM Role, Helm, eksctl, and kubectl
+Description: VPC(10.50.0.0/16) with fixed AMI, IAM Role, and EKS Tools
 
 Parameters:
   KeyName:
-    Description: Name of an existing EC2 KeyPair to enable SSH access
+    Description: Name of an existing EC2 KeyPair
     Type: AWS::EC2::KeyPair::KeyName
 
 Resources:
@@ -16,7 +16,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: eks-mgmt-vpc-10-50
+          Value: eks-mgmt-vpc
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -57,7 +57,7 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet
 
-  # 2. IAM Role (Bastion에서 eksctl을 바로 쓸 수 있게 권한 부여)
+  # 2. IAM Role (AdministratorAccess 권한 포함)
   BastionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -69,7 +69,7 @@ Resources:
               Service: ec2.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess # EKS 생성을 위해 필요
+        - arn:aws:iam::aws:policy/AdministratorAccess
 
   BastionInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -89,13 +89,12 @@ Resources:
           ToPort: 22
           CidrIp: 0.0.0.0/0
 
-  # 4. Bastion EC2 (SSM 파라미터로 최신 AMI 자동 선택)
+  # 4. Bastion EC2 (요청하신 AMI 직접 지정)
   BastionInstance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
-      # Amazon Linux 2023 최신 AMI를 자동으로 조회합니다.
-      ImageId: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+      ImageId: ami-0092e0c93f74c293a # 직접 주신 x86_64 AMI ID
       KeyName: !Ref KeyName
       SubnetId: !Ref PublicSubnet
       SecurityGroupIds:
@@ -124,9 +123,11 @@ Resources:
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
+          # Git Clone
+          git clone https://github.com/jhbaik1501/eks-monitoring-guide.git
       Tags:
         - Key: Name
-          Value: eksctl-bastion-final
+          Value: eksctl-bastion-fixed
 
 Outputs:
   VpcId:
