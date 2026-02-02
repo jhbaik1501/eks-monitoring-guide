@@ -21,7 +21,7 @@ vpc:
 managedNodeGroups:
   - name: eks-monitoring-test-nodegroup
     instanceType: t3a.medium
-    desiredCapacity: 4
+    desiredCapacity: 2
     volumeSize: 100
     volumeEncrypted: true
     ssh:
