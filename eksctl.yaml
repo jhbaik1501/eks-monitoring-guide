@@ -1,0 +1,48 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+ 
+metadata:
+  name: stellahub-prod-cluster
+  region: ap-northeast-2
+  version: "1.34"
+ 
+vpc:
+  id: "vpc-0xxxxxxxxxxx"
+  cidr: "10.83.156.0/23"
+  subnets:
+    public:
+      stellahub-prod-subnet-public1-ap-northeast-2a:
+        id: "subnet-0xxxxxxxxxxxxxxx1"
+        cidr: "10.83.156.0/27"
+      stellahub-prod-subnet-public2-ap-northeast-2c:
+        id: "subnet-0xxxxxxxxxxxxxxx2"
+        cidr: "10.83.156.32/27"
+    private:
+      stellahub-prod-subnet-private1-ap-northeast-2a:
+        id: "subnet-0xxxxxxxxxxxxxxx3"
+        cidr: "10.83.156.64/26"
+      stellahub-prod-subnet-private2-ap-northeast-2c:
+        id: "subnet-0xxxxxxxxxxxxxxx4"
+        cidr: "10.83.156.128/26"
+managedNodeGroups:
+  - name: eks-monitoring-test-nodegroup
+    instanceType: t3a.medium
+    desiredCapacity: 4
+    volumeSize: 100
+    volumeEncrypted: true
+    ssh:
+      publicKeyName: stellahub-key
+    subnets:
+      - subnet-0xxxxxxxxxxxxxxx3
+      - subnet-0xxxxxxxxxxxxxxx4
+    privateNetworking: true
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        ebs: true
+        efs: true
+        albIngress: true
+cloudWatch:
+  clusterLogging: {}
