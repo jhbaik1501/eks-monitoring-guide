@@ -8,7 +8,7 @@
 
 
 ## 3. eksctl-bastion-fixed 접속
-git clone https://github.com/jhbaik1501/eks-monitoring-guide.git
+cd eks-monitoring-guide/
 
 
 ## 3. 클러스터 생성
