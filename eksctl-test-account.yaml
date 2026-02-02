@@ -1,29 +1,21 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
- 
+
 metadata:
   name: eks-monitoring-test-prod-cluster
   region: ap-northeast-2
   version: "1.34"
- 
+
 vpc:
   id: "vpc-0952fec32cea04558"
   cidr: "10.150.0.0/16"
   subnets:
     public:
+      # A존 퍼블릭 서브넷만 정의
       eks-monitoring-test-prod-subnet-public1-ap-northeast-2a:
         id: "subnet-08aa1021322e2f85e"
         cidr: "10.150.0.0/20"
-      eks-monitoring-test-prod-subnet-public2-ap-northeast-2b:
-        id: "subnet-08b59ae120d877a36"
-        cidr: "10.150.16.0/20"
-    private:
-      eks-monitoring-test-prod-subnet-private1-ap-northeast-2a:
-        id: "subnet-04524a6fd9dc9a6df"
-        cidr: "10.150.128.0/20"
-      eks-monitoring-test-prod-subnet-private2-ap-northeast-2b:
-        id: "subnet-0e2fc286615609609"
-        cidr: "10.150.144.0/20"
+
 managedNodeGroups:
   - name: eks-monitoring-test-nodegroup
     instanceType: t3a.medium
@@ -33,9 +25,8 @@ managedNodeGroups:
     ssh:
       publicKeyName: eks-monitoring-test-key
     subnets:
-      - subnet-04524a6fd9dc9a6df
-      - subnet-0e2fc286615609609
-    privateNetworking: true
+      - subnet-08aa1021322e2f85e
+    privateNetworking: false
     tags:
       LongTermUse: "Y"
       UserEmail: "jonghyun.baik@cj.net"
@@ -48,5 +39,6 @@ managedNodeGroups:
         ebs: true
         efs: true
         albIngress: true
+
 cloudWatch:
   clusterLogging: {}
